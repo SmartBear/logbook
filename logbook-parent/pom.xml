@@ -32,6 +32,7 @@
         <spring4.version>4.3.30.RELEASE</spring4.version>
         <spring-boot1.version>1.5.22.RELEASE</spring-boot1.version>
         <spring-security4.version>4.2.20.RELEASE</spring-security4.version>
+        <spring-beans4.version>4.3.30.RELEASE</spring-beans4.version>
 
         <spring5.version>5.3.16</spring5.version>
         <spring-boot2.version>2.6.4</spring-boot2.version>
@@ -594,6 +595,7 @@
                 <spring.version>${spring4.version}</spring.version>
                 <spring-boot.version>${spring-boot1.version}</spring-boot.version>
                 <spring-security.version>${spring-security4.version}</spring-security.version>
+                <spring-beans.version>${spring-beans4.version}</spring-beans.version>
             </properties>
         </profile>
         <profile>
