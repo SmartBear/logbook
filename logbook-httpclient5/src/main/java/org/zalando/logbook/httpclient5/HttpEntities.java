@@ -19,8 +19,8 @@ final class HttpEntities {
         byte[] getBody();
     }
 
-    Copy copy(final HttpEntity entity) throws IOException {
-        final byte[] body = toByteArray(entity);
+    Copy copy(final HttpEntity entity, int sizeLimit) throws IOException {
+        final byte[] body = toByteArray(entity, sizeLimit);
         ContentType contentType = ContentType.parse(entity.getContentType());
         boolean chunked = entity.isChunked();
         String contentEncoding = entity.getContentEncoding();
