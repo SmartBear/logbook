@@ -25,11 +25,20 @@ final class RemoteResponse implements org.zalando.logbook.HttpResponse {
     private final HttpResponse response;
     private final EntityDetails entityDetails;
     private final ByteBuffer body;
+    private final int sizeLimit;
 
     RemoteResponse(HttpResponse response) {
         this.response = response;
         this.body = null;
         this.entityDetails = null;
+        this.sizeLimit = Integer.MAX_VALUE;
+    }
+
+    RemoteResponse(HttpResponse response, int sizeLimit) {
+        this.response = response;
+        this.body = null;
+        this.entityDetails = null;
+        this.sizeLimit = sizeLimit;
     }
 
     private interface State {
@@ -42,7 +51,7 @@ final class RemoteResponse implements org.zalando.logbook.HttpResponse {
             return this;
         }
 
-        default State buffer(final HttpResponse response) throws IOException {
+        default State buffer(final HttpResponse response, int sizeLimit) throws IOException {
             return this;
         }
 
@@ -73,14 +82,14 @@ final class RemoteResponse implements org.zalando.logbook.HttpResponse {
         }
 
         @Override
-        public State buffer(final HttpResponse response) throws IOException {
+        public State buffer(final HttpResponse response, int sizeLimit) throws IOException {
             if (response instanceof ClassicHttpResponse) {
                 ClassicHttpResponse classicResponse = (ClassicHttpResponse) response;
-                HttpEntity entity = (classicResponse).getEntity();
+                HttpEntity entity = classicResponse.getEntity();
                 if (entity == null) {
                     return new Passing();
                 } else {
-                    final HttpEntities.Copy copy = HttpEntities.copy(entity);
+                    final HttpEntities.Copy copy = HttpEntities.copy(entity, sizeLimit);
                     classicResponse.setEntity(copy);
                     return new Buffering(copy.getBody());
                 }
@@ -212,7 +221,7 @@ final class RemoteResponse implements org.zalando.logbook.HttpResponse {
 
     @Override
     public byte[] getBody() {
-        return state.updateAndGet(throwingUnaryOperator(state -> (body != null) ? state.buffer(Objects.requireNonNull(entityDetails), body) : state.buffer(response))).getBody();
+        return state.updateAndGet(throwingUnaryOperator(state -> (body != null) ? state.buffer(Objects.requireNonNull(entityDetails), body) : state.buffer(response, sizeLimit))).getBody();
     }
 
 }

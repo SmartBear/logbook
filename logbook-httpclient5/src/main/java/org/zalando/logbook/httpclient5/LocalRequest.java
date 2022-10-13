@@ -76,7 +76,7 @@ final class LocalRequest implements org.zalando.logbook.HttpRequest {
                 if (httpEntity == null) {
                     return new Passing();
                 } else {
-                    final HttpEntities.Copy copy = HttpEntities.copy(httpEntity);
+                    final HttpEntities.Copy copy = HttpEntities.copy(httpEntity, Integer.MAX_VALUE);
                     original.setEntity(copy);
                     return new Buffering(copy.getBody());
                 }

@@ -46,7 +46,7 @@ public final class LogbookHttpAsyncResponseConsumer<T> extends ForwardingHttpAsy
 
     @Override
     public void consume(ByteBuffer src) throws IOException {
-        stage.process(new RemoteResponse(this.response, this.entityDetails, src)).write();
+        stage.process(new RemoteResponse(this.response, this.entityDetails, src, Integer.MAX_VALUE)).write();
         delegate().consume(src);
     }
 

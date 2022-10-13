@@ -21,11 +21,19 @@ import static org.apiguardian.api.API.Status.EXPERIMENTAL;
  */
 @API(status = EXPERIMENTAL)
 public final class LogbookHttpResponseInterceptor implements HttpResponseInterceptor {
+    final int maxResponseSize;
+    public LogbookHttpResponseInterceptor() {
+        maxResponseSize = Integer.MAX_VALUE;
+    }
+
+    public LogbookHttpResponseInterceptor(int maxResponseSize) {
+        this.maxResponseSize = maxResponseSize;
+    }
 
     @Override
     public void process(HttpResponse original, EntityDetails entity, HttpContext context) throws IOException {
         final ResponseProcessingStage stage = find(context);
-        stage.process(new RemoteResponse(original)).write();
+        stage.process(new RemoteResponse(original, maxResponseSize)).write();
     }
 
     private ResponseProcessingStage find(final HttpContext context) {
