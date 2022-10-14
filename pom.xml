@@ -7,10 +7,10 @@
     <packaging>pom</packaging>
     <name>Logbook</name>
     <description>HTTP request and response logging</description>
-    <url>https://github.com/zalando/logbook</url>
+    <url>https://github.com/smartbear/logbook</url>
     <inceptionYear>2015</inceptionYear>
     <organization>
-        <name>Zalando SE</name>
+        <name>SmartBear</name>
     </organization>
     <licenses>
         <license>
@@ -65,8 +65,8 @@
         <module>logbook-test</module>
     </modules>
     <scm>
-        <url>https://github.com/zalando/logbook</url>
-        <connection>scm:git:git@github.com:zalando/logbook.git</connection>
-        <developerConnection>scm:git:git@github.com:zalando/logbook.git</developerConnection>
+        <url>https://github.com/smartbear/logbook</url>
+        <connection>scm:git:git@github.com:smartbear/logbook.git</connection>
+        <developerConnection>scm:git:git@github.com:smartbear/logbook.git</developerConnection>
     </scm>
 </project>
