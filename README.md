@@ -5,7 +5,6 @@
 [![Stability: Active](https://masterminds.github.io/stability/active.svg)](https://masterminds.github.io/stability/active.html)
 ![Build Status](https://github.com/zalando/logbook/workflows/build/badge.svg)
 [![Coverage Status](https://img.shields.io/coveralls/zalando/logbook/main.svg)](https://coveralls.io/r/zalando/logbook)
-[![Code Quality](https://img.shields.io/codacy/grade/1304955ee1cb4597a37267aac596bcb3/main.svg)](https://www.codacy.com/app/whiskeysierra/logbook)
 [![Javadoc](http://javadoc.io/badge/org.zalando/logbook-core.svg)](http://www.javadoc.io/doc/org.zalando/logbook-core)
 [![Release](https://img.shields.io/github/release/zalando/logbook.svg)](https://github.com/zalando/logbook/releases)
 [![Maven Central](https://img.shields.io/maven-central/v/org.zalando/logbook-parent.svg)](https://maven-badges.herokuapp.com/maven-central/org.zalando/logbook-parent)
@@ -36,8 +35,8 @@ Logbook is ready to use out of the box for most common setups. Even for uncommon
 - JAX-RS 2.x Client and Server (optional)
 - Netty 4.x (optional)
 - OkHttp 2.x **or 3.x** (optional)
-- Spring 4.x **or 5.x** (optional)
-- Spring Boot 1.x **or 2.x** (optional)
+- Spring 5.x** (optional)
+- Spring Boot 2.x** (optional)
 - Ktor (optional)
 - logstash-logback-encoder 5.x (optional)
 
@@ -465,6 +464,33 @@ The Common Log Format ([CLF](https://httpd.apache.org/docs/trunk/logs.html#commo
 185.85.220.253 - - [02/Aug/2019:08:16:41 0000] "GET /search?q=zalando HTTP/1.1" 200 -
 ```
 
+##### Extended Log Format
+
+The Extended Log Format ([ELF](https://en.wikipedia.org/wiki/Extended_Log_Format)) is a standardised text file format, like Common Log Format (CLF), that is used by web servers when generating log files, but ELF files provide more information and flexibility. The format is supported via the `ExtendedLogFormatSink`.
+Also see [W3C](https://www.w3.org/TR/WD-logfile.html) document.
+
+Default fields:
+
+```text
+date time c-ip s-dns cs-method cs-uri-stem cs-uri-query sc-status sc-bytes cs-bytes time-taken cs-protocol cs(User-Agent) cs(Cookie) cs(Referrer)
+```
+
+Default log output example:
+
+```text
+2019-08-02 08:16:41 185.85.220.253 localhost POST /search ?q=zalando 200 21 20 0.125 HTTP/1.1 "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0" "name=value" "https://example.com/page?q=123"
+```
+
+Users may override default fields with their custom fields through the constructor of `ExtendedLogFormatSink`:
+
+```java
+new ExtendedLogFormatSink(new DefaultHttpLogWriter(), "date time cs(Custom-Request-Header) sc(Custom-Response-Header)")
+```
+
+For Http header fields: `cs(Any-Header)` and `sc(Any-Header)`, users could specify any headers they want to extract from the request.
+
+Other supported fields are listed in the value of `ExtendedLogFormatSink.Field`, which can be put in the custom field expression.
+
 ##### cURL
 
 *cURL* is an alternative formatting style, provided by the `CurlHttpLogFormatter` which will render requests as 
@@ -640,7 +666,15 @@ client.execute(producer, new LogbookHttpAsyncResponseConsumer<>(consumer), callb
 
 ### HTTP Client 5
 
-The `logbook-httpclient5` module contains both an `HttpRequestInterceptor` and an `HttpResponseInterceptor` to use with the `HttpClient`:
+The `logbook-httpclient5` module contains an `ExecHandler` to use with the `HttpClient`:
+```java
+CloseableHttpClient client = HttpClientBuilder.create()
+        .addExecInterceptorFirst("Logbook", new LogbookHttpExecHandler(logbook))
+        .build();
+```
+The Handler should be added first, such that a compression is performed after logging and decompression is performed before logging.
+
+To avoid a breaking change, there is also an `HttpRequestInterceptor` and an `HttpResponseInterceptor` to use with the `HttpClient`, which works fine as long as compression (or other ExecHandlers) is not used:
 
 ```java
 CloseableHttpClient client = HttpClientBuilder.create()
@@ -674,6 +708,18 @@ client.register(new LogbookClientFilter(logbook));
    
 ```java
 resourceConfig.register(new LogbookServerFilter(logbook));
+```
+
+### JDK HTTP Server
+
+The `logbook-jdkserver` module provides support for
+[JDK HTTP server](https://docs.oracle.com/javase/8/docs/jre/api/net/httpserver/spec/com/sun/net/httpserver/HttpServer.html)
+and contains:
+
+A `LogbookFilter` to be used with the builtin server
+
+```java
+httpServer.createContext(path, handler).getFilters().add(new LogbookFilter(logbook))
 ```
 
 ### Netty
@@ -722,7 +768,7 @@ The `logbook-okhttp2` module contains an `Interceptor` to use with version 2.x o
 
 ```java
 OkHttpClient client = new OkHttpClient();
-client.networkInterceptors().add(new LogbookInterceptor(logbook);
+client.networkInterceptors().add(new LogbookInterceptor(logbook));
 ```
 
 If you're expecting gzip-compressed responses you need to register our `GzipInterceptor` in addition.
@@ -731,7 +777,7 @@ logbook to log compressed binary responses.
 
 ```java
 OkHttpClient client = new OkHttpClient();
-client.networkInterceptors().add(new LogbookInterceptor(logbook);
+client.networkInterceptors().add(new LogbookInterceptor(logbook));
 client.networkInterceptors().add(new GzipInterceptor());
 ```
 

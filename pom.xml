@@ -36,6 +36,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>17</java.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
     <modules>
         <module>logbook-parent</module>
@@ -46,6 +49,7 @@
         <module>logbook-httpclient</module>
         <module>logbook-httpclient5</module>
         <module>logbook-jaxrs</module>
+        <module>logbook-jdkserver</module>
         <module>logbook-json</module>
         <module>logbook-logstash</module>
         <module>logbook-netty</module>
