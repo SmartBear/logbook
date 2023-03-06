@@ -18,7 +18,7 @@ class RemoteResponseTest {
     void statusCanThrow() throws IOException {
         ClientHttpResponse response = mock(ClientHttpResponse.class);
         when(response.getRawStatusCode()).thenThrow(new IOException("io exception"));
-        assertThatThrownBy(() -> unit(response).getStatus()).hasMessageContaining("io exception");
+        assertThatThrownBy(() -> new RemoteResponse(response).getStatus()).hasMessageContaining("io exception");
     }
 
     @Test
